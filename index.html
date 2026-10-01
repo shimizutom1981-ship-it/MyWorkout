@@ -4,7 +4,11 @@ function toast(s){const t=document.getElementById('toast');t.textContent=s;t.sty
 function suggestPlan(ex){
   const l=latest(ex.id);if(!l)return null;
   const w=Number(l.weight),r=Number(l.reps),base=targetReps(),next=nextPowerBlockWeight(w);
-  if(state.mode!=='heavy')return {weight:r>=base?next:w,reps:base};
+  if(state.mode!=='heavy'){
+    // 軽い日：+5 lbの増量は12回から開始し、同重量で1回ずつ15回まで伸ばす。
+    if(r>=base)return {weight:next,reps:Math.abs(next-w-5)<1e-9?12:base};
+    return {weight:w,reps:Math.min(base,Math.max(12,r+1))};
+  }
   if(next<=w)return {weight:w,reps:Math.max(base,r)};
   const jump=next-w;
   // 重い日：通常は5回達成で次重量へ。
